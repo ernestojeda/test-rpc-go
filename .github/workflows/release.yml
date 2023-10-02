@@ -32,6 +32,7 @@ jobs:
           sed -i "s/$current_version/$next_version/g" $RELEASE_YAML
           cat $RELEASE_YAML
           echo "========================="
+          git config --list
           git config --global user.email "no-reply@intel.com"
           git config --global user.name "Release Bot"
           git status
