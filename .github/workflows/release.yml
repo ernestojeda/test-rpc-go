@@ -7,7 +7,6 @@ on:
 env:
   RELEASE_YAML: release/rpc-go.yml
   NEXT_VERSION_FILE: .nextVersion
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GIT_TRACE: true
 jobs:
   release:
@@ -22,8 +21,6 @@ jobs:
         run: echo "v2.15.2" > $NEXT_VERSION_FILE
       - name: debug
         run: ls -al .
-      - name: Setup Auth
-        run: git config credential.helper '!f() { echo "username=ernestojeda"; echo "password=${{ secrets.RELEASE_TOKEN }}"; }; f'
       - name: Create docker-release
         run: |
           next_version=$(cat $NEXT_VERSION_FILE)
@@ -31,12 +28,14 @@ jobs:
           echo "Releasing rpc-go@$next_version"
           current_version=$(sed -nre 's/(.*):v[0-9]*(([0-9]+\.)*[0-9]+).*/v\2/p' $RELEASE_YAML)
           sed -i "s/$current_version/$next_version/g" $RELEASE_YAML
-          cat $RELEASE_YAML
           echo "========================="
-          git config --list
           git config --global user.email "no-reply@intel.com"
           git config --global user.name "Release Bot"
           git status
           git add .
           git commit -m "release(rpc-go): automated release of $next_version"
-          git push origin docker-release
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.RELEASE_TOKEN }}
+          repository: ernestojeda/test-e2e-testing
