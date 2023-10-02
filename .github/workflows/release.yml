@@ -25,9 +25,10 @@ jobs:
           rm -f $NEXT_VERSION_FILE
           echo "Releasing rpc-go@$next_version"
           current_version=$(sed -nre 's/(.*):v[0-9]*(([0-9]+\.)*[0-9]+).*/v\2/p' $RELEASE_YAML)
-          echo "sed -i \"s/$current_version/$next_version/g\" $RELEASE_YAML"
-          sed "s/$current_version/$next_version/g" $RELEASE_YAML
-          sed -i "s/$current_version/$next_version/g" $RELEASE_YAML
+          sed "s/$current_version/$next_version/g" $RELEASE_YAML > /tmp/rpc-go.yml
+          mv /tmp/rpc-go.yml $RELEASE_YAML
+          cat $RELEASE_YAML
+          echo "========================="
           git status
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
