@@ -18,7 +18,7 @@ jobs:
           ref: docker-release
           clean: true
       - name: Semantic Release
-        run: echo "v2.15.2" > $NEXT_VERSION_FILE
+        run: echo "v2.15.3" > $NEXT_VERSION_FILE
       - name: debug
         run: ls -al .
       - name: Create docker-release
