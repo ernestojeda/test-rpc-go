@@ -21,7 +21,7 @@ jobs:
       - name: debug
         run: ls -al .
       - name: Setup Auth
-        run: git config credential.helper '!f() { sleep 1; echo "username=git"; echo "password=$GITHUB_TOKEN"; }; f'
+        run: git config credential.helper '!f() { sleep 1; echo "username=git"; echo "password=${{ secrets.RELEASE_TOKEN }}"; }; f'
       - name: Create docker-release
         run: |
           next_version=$(cat $NEXT_VERSION_FILE)
