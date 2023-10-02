@@ -1,0 +1,31 @@
+name: Semantic-Release CI
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  RELEASE_YAML: release/rpc-go.yml
+  NEXT_VERSION_FILE: .nextVersion
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Semantic Release
+        run: echo "v2.15.2" > $NEXT_VERSION_FILE
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ernestojeda/test-e2e-testing
+          ref: docker-release
+      - name: debug
+        run: ls -al .
+      - name: Create docker-release
+        run: |
+          next_version=$(cat $NEXT_VERSION_FILE)
+          echo "Releasing rpc-go@$next_version"
+          current_version=$(sed -nre 's/(.*):v[0-9]*(([0-9]+\.)*[0-9]+).*/v\2/p' $RELEASE_YAML)
+          sed -i "s/$current_version/$next_version/g" %RELEASE_YAML
+          git status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
