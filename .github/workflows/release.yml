@@ -8,6 +8,7 @@ env:
   RELEASE_YAML: release/rpc-go.yml
   NEXT_VERSION_FILE: .nextVersion
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GIT_TRACE: true
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -22,7 +23,7 @@ jobs:
       - name: debug
         run: ls -al .
       - name: Setup Auth
-        run: git config credential.helper '!f() { echo "username=git"; echo "password=${{ secrets.RELEASE_TOKEN }}"; }; f'
+        run: git config credential.helper '!f() { echo "username=ernestojeda"; echo "password=${{ secrets.RELEASE_TOKEN }}"; }; f'
       - name: Create docker-release
         run: |
           next_version=$(cat $NEXT_VERSION_FILE)
