@@ -25,7 +25,7 @@ jobs:
           clean: true
           token: ${{ secrets.PROJECTS_PAT }}
 
-      - name: Create docker-release
+      - name: Create docker-release @ ${{ steps.version.outputs.next }}
         env:
           RELEASE_YAML: release/rpc-go.yml
           NEXT_VERSION: ${{ steps.version.outputs.next }}
