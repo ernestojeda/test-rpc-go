@@ -4,40 +4,47 @@ on:
   push:
     branches: [ main ]
 
-env:
-  RELEASE_YAML: release/rpc-go.yml
-  NEXT_VERSION_FILE: .nextVersion
-  GIT_TRACE: true
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
+          clean: true
+          # fetch-tags: true
+
+      - name: Get Next Version
+        id: version
+        run: echo "next=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v3
+        with:
           repository: ernestojeda/test-e2e-testing
           ref: docker-release
           clean: true
           token: ${{ secrets.PROJECTS_PAT }}
-      - name: Semantic Release
-        run: echo "v2.15.4" > $NEXT_VERSION_FILE
-      - name: debug
-        run: ls -al .
+
       - name: Create docker-release
+        env:
+          RELEASE_YAML: release/rpc-go.yml
+          NEXT_VERSION: ${{ steps.version.outputs.next }}
         run: |
-          next_version=$(cat $NEXT_VERSION_FILE)
-          rm -f $NEXT_VERSION_FILE
-          echo "Releasing rpc-go@$next_version"
-          current_version=$(sed -nre 's/(.*):v[0-9]*(([0-9]+\.)*[0-9]+).*/v\2/p' $RELEASE_YAML)
-          sed -i "s/$current_version/$next_version/g" $RELEASE_YAML
-          echo "========================="
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git status
-          git add .
-          git commit -m "release(rpc-go): automated release of $next_version"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.PROJECTS_PAT }}
-          repository: ernestojeda/test-e2e-testing
-          branch: docker-release
+          echo "Releasing rpc-go@$NEXT_VERSION"
+          if [ "$NEXT_VERSION" != "" ]; then
+            CURRENT_VERSION=$(sed -nre 's/(.*):v[0-9]*(([0-9]+\.)*[0-9]+).*/v\2/p' $RELEASE_YAML)
+            sed -i "s/$CURRENT_VERSION/$NEXT_VERSION/g" $RELEASE_YAML
+            echo "========================="
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git status
+            git add .
+            git commit -m "release(rpc-go): automated release of $NEXT_VERSION"
+            git push origin docker-release
+          fi
+
+      # - name: Push changes
+      #   uses: ad-m/github-push-action@master
+      #   with:
+      #     github_token: ${{ secrets.PROJECTS_PAT }}
+      #     repository: ernestojeda/test-e2e-testing
+      #     branch: docker-release
