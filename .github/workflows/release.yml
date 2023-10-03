@@ -16,7 +16,6 @@ jobs:
         id: version
         run: |
           git fetch --tags
-          git tag -l
           echo "next=$(git tag | sort -r --version-sort | head -n1)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@v3
@@ -40,13 +39,6 @@ jobs:
             git config --local user.name "github-actions[bot]"
             git status
             git add .
-            git commit -m "release(rpc-go): automated release of $NEXT_VERSION"
+            git commit -m "release(rpc-go): automated release of $NEXT_VERSION @ ${GITHUB_SHA::7}"
             git push origin docker-release
           fi
-
-      # - name: Push changes
-      #   uses: ad-m/github-push-action@master
-      #   with:
-      #     github_token: ${{ secrets.PROJECTS_PAT }}
-      #     repository: ernestojeda/test-e2e-testing
-      #     branch: docker-release
